@@ -1,3 +1,14 @@
+/*
+
+ Project: Tetris+
+ Designed by Joe DiMatteo
+ jhd279@nyu.edu
+ https://github.com/joedimatteo
+
+*/
+
+//*******************************//
+
 // Generic function for ease of modular arithmetic
 int modulo( int num, int divisor ){
   if( num >= divisor ){ 
@@ -46,15 +57,17 @@ class Position {
 }
 
 //*******************************//
+// SQUARE: OBJECT
 
 class Square extends Position {
+  // Code commented out in this class is designed for Mouse functionality
   
   private float sizeX;
   private float sizeY;
-  private boolean isClicked;
-  private boolean clickable;
-  private int screenLayer;
-  private Position offset;
+  //private boolean isClicked;
+  //private boolean clickable;
+  //private int screenLayer;
+  //private Position offset;
   private color Color;
   
   Square( int xC, int yC, float widthC, float heightC ){
@@ -63,10 +76,10 @@ class Square extends Position {
     sizeY = heightC;
     Color = color(0,0,0);
     
-    isClicked = false;
-    clickable = false;
-    screenLayer = 0;
-    offset = new Position(0,0);
+    //isClicked = false;
+    //clickable = false;
+    //screenLayer = 0;
+    //offset = new Position(0,0);
   }
   
   public void display() {
@@ -76,11 +89,12 @@ class Square extends Position {
   
   public float sizeX() { return sizeX; }
   public float sizeY() { return sizeY; }
-  public Position offset() { return offset; }
-  public boolean isClicked() { return isClicked; }
-  public void setLayer( int layer ) { screenLayer = layer; }
+  //public Position offset() { return offset; }
+  //public boolean isClicked() { return isClicked; }
+  //public void setLayer( int layer ) { screenLayer = layer; }
   public void setColor( color newColor ) { Color = newColor; }
   
+  /*
   // Change whether or not we can click on the object
   public void clickable( boolean tf ){
     clickable = tf;
@@ -118,11 +132,13 @@ class Square extends Position {
       print( "false " );
     } 
   }
+  */
   
   
 }
 
 //*******************************//
+// SHAPE CLASS: A GEOMETRIC STRUCTURE THAT BUILDS AN ORDERING BASED ON PREVIOUS POINTS IN THE SHAPE
 
 class Shape extends Position {
   private int pieces;
@@ -191,7 +207,7 @@ class Shape extends Position {
 }
 
 //*******************************//
-
+// BLOCK CLASS: COLLECTION OF SQUARES, WHOSE CONSTRUCTION IS DEFINED BY A SHAPE
 class Block extends Position {
  
   public ArrayList<Square> pieces;
@@ -199,6 +215,8 @@ class Block extends Position {
   public Position offset;
   private int DNA;
   private boolean touched;
+  
+  public Block(){}
   
   // Constructor for random block
   public Block( int theSize, Position pos ){
@@ -259,7 +277,6 @@ class Block extends Position {
     
     for( Position posi : spaces ){
       Square newSquare = new Square( posi.x, posi.y, 50, 50 );
-      newSquare.clickable(true);
       newSquare.setColor( Color );
       pieces.add( newSquare );
     }
@@ -314,10 +331,7 @@ class Block extends Position {
 
 
 //*******************************//
-//                               //
-//      GAME FUNCTIONALITY       //
-//                               //
-//*******************************//
+//GAME FUNCTIONALITY
 
 Block b = new Block( 4, new Position(200,200) );
 Block newBlock = new Block( 4, new Position(650,150)) ;
@@ -346,6 +360,8 @@ void keyPressed(){
     b.pieces.clear();
     b = newBlock;
     b.moveto(200, 200);
+    newBlock = blockInPlace(new Position(600,100));
+    /*
     int dna = int(random(0,7));
     if( dna == 0 ){ newBlock = new Block( 4, new Position(675,150), 0); }
     else if( dna == 1 ){ newBlock = new Block( 4, new Position(650,200), 1); }
@@ -354,7 +370,7 @@ void keyPressed(){
     else if( dna == 4 ){ newBlock = new Block( 4, new Position(650,200), 4); }
     else if( dna == 5 ){ newBlock = new Block( 4, new Position(625,200), 5); }
     else if( dna == 6 ){ newBlock = new Block( 4, new Position(700,150), 6); }
-    
+    */
   }
   else if( keyPressed && keyCode == SHIFT){
     b.blockshape.setRotation(modulo(b.blockshape.getRotation() + 1, 4));
@@ -362,6 +378,8 @@ void keyPressed(){
   
 }
 
+// Check the row/column of an arraylist of squares for a full line, 
+// then clear if found and return whether or not a line was cleared
 boolean clearFullRow( ArrayList<Square> grid, int row ){
   ArrayList<Square> fullRow = new ArrayList<Square>(0);
   ArrayList<Square> fullCol = new ArrayList<Square>(0);
@@ -408,16 +426,28 @@ boolean clearFullRow( ArrayList<Square> grid, int row ){
     }
     cleared = true;
   }
-  
   /*
   if( cleared ){
   print( "RowSize: " + fullRow.size() + " " );
   print( "ColSize: " + fullCol.size() + "\n" );
   }
   */
-  
-  
   return cleared;
+  
+}
+
+Block blockInPlace( Position centered ){
+  Block newBlock = new Block();
+  int dna = int(random(0,7));
+  if( dna == 0 ){ newBlock = new Block( 4, new Position(centered.x() + 75, centered.y() + 50), 0); }
+  else if( dna == 1 ){ newBlock = new Block( 4, new Position(centered.x() + 50, centered.y() + 100), 1); }
+  else if( dna == 2 ){ newBlock = new Block( 4, new Position(centered.x() + 50, centered.y() + 50), 2); }
+  else if( dna == 3 ){ newBlock = new Block( 4, new Position(centered.x() + 50, centered.y() + 50), 3); }
+  else if( dna == 4 ){ newBlock = new Block( 4, new Position(centered.x() + 50, centered.y() + 100), 4); }
+  else if( dna == 5 ){ newBlock = new Block( 4, new Position(centered.x() + 25, centered.y() + 100), 5); }
+  else if( dna == 6 ){ newBlock = new Block( 4, new Position(centered.x() + 100, centered.y() + 50), 6); }
+  else { print( "We messed up, fam." ); }
+  return newBlock;
   
 }
   
@@ -466,25 +496,13 @@ void keepOnGrid( Block blk, int xLeft, int xRight, int yTop, int yBot, int block
   }
 }
   
-  
 //*******************************//
-//                               //
-//      RUNTIME OPERATIONS       //
-//                               //
-//*******************************//
-
+//RUNTIME OPERATIONS
 
 void setup(){ 
   
   // Initialize New Block to random state
-  int dna = int(random(0,7));
-  if( dna == 0 ){ newBlock = new Block( 4, new Position(675,150), 0); }
-  else if( dna == 1 ){ newBlock = new Block( 4, new Position(650,200), 1); }
-  else if( dna == 2 ){ newBlock = new Block( 4, new Position(650,150), 2); }
-  else if( dna == 3 ){ newBlock = new Block( 4, new Position(650,150), 3); }
-  else if( dna == 4 ){ newBlock = new Block( 4, new Position(650,200), 4); }
-  else if( dna == 5 ){ newBlock = new Block( 4, new Position(625,200), 5); }
-  else if( dna == 6 ){ newBlock = new Block( 4, new Position(700,150), 6); }
+  newBlock = blockInPlace( new Position(600,100) );
   newBlock.update();
   
   size(900,600);
@@ -506,7 +524,7 @@ void draw(){
   rect( 600, 50, 250, 250 );
   
   fill(30);
-  text( "NEXT", 690, 100 );
+  text( "NEXT", 697, 100 );
   
   fill(255);
   text( "SCORE", 600, 400 );
@@ -543,9 +561,6 @@ void draw(){
     square.setColor( 100 );
   }
   if( isBlockOnGrid(b, 50,550,50,550) == true ) { b.display(); }
-  
-
-  
   
 }
 
